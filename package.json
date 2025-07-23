@@ -16,10 +16,13 @@
     "wait-on": "^7.2.0"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@fullpage/react-fullpage": "^0.1.17",
     "axios": "^1.10.0",
     "cors": "^2.8.5",
     "electron-is-dev": "^3.0.1",
     "express": "^5.1.0",
+    "fullpage.js": "^4.0.37",
     "googleapis": "^153.0.0",
     "open": "^10.2.0"
   }
