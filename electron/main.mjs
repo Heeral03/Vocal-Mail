@@ -1,16 +1,10 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import isDev from 'electron-is-dev';
 import { authorizeGmail } from './oauth.mjs';
 import { google } from 'googleapis';
 import { fetchEmails } from './fetchEmails.mjs';
-import { ipcMain } from 'electron';
-
-ipcMain.handle('get-emails', async () => {
-  const emails = await fetchEmails();
-  return emails;
-});
 
 // __dirname workaround
 const __filename = fileURLToPath(import.meta.url);
@@ -53,13 +47,15 @@ async function listEmails(auth) {
 // 🪟 Create main window
 async function createWindow() {
   const win = new BrowserWindow({
-    width: 1000,
-    height: 800,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  });
+  width: 1000,
+  height: 800,
+  backgroundColor: '#ffffff', // <--- add this line to prevent weird bg
+  webPreferences: {
+    nodeIntegration: true,
+    contextIsolation: false,
+  },
+});
+
 
   const appURL = isDev
     ? 'http://localhost:3000'
@@ -67,6 +63,16 @@ async function createWindow() {
 
   await win.loadURL(appURL);
   if (isDev) win.webContents.openDevTools();
+
+  // ✅ Force white/light background even if Electron messes up CSS
+  win.webContents.on('did-finish-load', () => {
+    win.webContents.insertCSS(`
+      html, body {
+        background-color: white !important;
+        color: black !important;
+      }
+    `);
+  });
 
   // Gmail Auth + IPC
   try {
@@ -83,9 +89,11 @@ async function createWindow() {
 }
 
 app.whenReady().then(createWindow);
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
+
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });

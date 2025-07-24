@@ -10,7 +10,7 @@
   "devDependencies": {
     "autoprefixer": "^10.4.21",
     "concurrently": "^8.0.0",
-    "electron": "^28.0.0",
+    "electron": "^28.3.3",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
     "wait-on": "^7.2.0"
@@ -22,8 +22,10 @@
     "cors": "^2.8.5",
     "electron-is-dev": "^3.0.1",
     "express": "^5.1.0",
+    "firebase": "^12.0.0",
     "fullpage.js": "^4.0.37",
     "googleapis": "^153.0.0",
-    "open": "^10.2.0"
+    "open": "^10.2.0",
+    "react-router-dom": "^7.7.0"
   }
 }

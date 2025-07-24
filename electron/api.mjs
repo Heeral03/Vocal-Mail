@@ -29,16 +29,56 @@ function getEmotionalContext(text) {
 }
 
 // 📩 Endpoint to fetch emails
-app.get('/api/emails', async (req, res) => {
+app.post('/api/emails', async (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ error: 'Missing access token' });
+  }
+
   try {
-    const emails = await fetchEmails();
-    console.log("✅ Emails fetched:", emails.length);
-    res.json(emails);
+    const gmailRes = await axios.get(
+      'https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=10',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const messages = gmailRes.data.messages || [];
+
+    const emailDetails = await Promise.all(
+      messages.map(async (msg) => {
+        const msgRes = await axios.get(
+          `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const payload = msgRes.data.payload || {};
+        const headers = payload.headers || [];
+        const subjectHeader = headers.find((h) => h.name === 'Subject');
+        const fromHeader = headers.find((h) => h.name === 'From');
+
+        return {
+          subject: subjectHeader?.value || "(No subject)",
+          from: fromHeader?.value || "(Unknown sender)",
+          snippet: msgRes.data.snippet,
+        };
+      })
+    );
+
+    res.json(emailDetails);
   } catch (err) {
-    console.error('❌ Error fetching emails:', err);
-    res.status(500).json({ error: 'Failed to fetch emails' });
+    console.error("❌ Error fetching emails from Gmail:", err.response?.data || err.message);
+    res.status(500).json({ error: 'Failed to fetch Gmail emails' });
   }
 });
+
 
 // 🔊 TTS Endpoint with emotional context
 app.post('/api/tts', async (req, res) => {
@@ -85,6 +125,35 @@ app.post('/api/tts', async (req, res) => {
   }
 });
 
+// 🚀 Server started log
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
+
+// ⛑️ Catch unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+// 🔥 Catch uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('💣 Uncaught Exception thrown:', err);
+  process.exit(1); // optional: shut down server on fatal exception
+});
+
+// 📤 Listen for process exit events
+process.on('exit', (code) => {
+  console.log(`👋 Process exiting with code: ${code}`);
+});
+
+// 👋 Log when SIGINT/SIGTERM received (like Ctrl+C)
+process.on('SIGINT', () => {
+  console.log('🛑 SIGINT received. Shutting down...');
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  console.log('🛑 SIGTERM received. Shutting down...');
+  process.exit(0);
+});
+setInterval(() => {}, 1 << 30);
