@@ -1,0 +1,33 @@
+.email-login-container {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 2rem;
+  background: #f7f7f7;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.email-login-form label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: 600;
+}
+
+.email-login-form input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.email-login-form button {
+  margin-top: 1.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
