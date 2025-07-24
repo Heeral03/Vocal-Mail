@@ -1,1 +1,7 @@
 vocalmail-client/node_modules/
+electron/node_modules/
+node_modules
+.env
+.DS_Store
+.vscode
+*.log
