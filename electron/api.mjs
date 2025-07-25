@@ -1,102 +1,113 @@
 import axios from 'axios';
 import express from 'express';
 import cors from 'cors';
-import { fetchEmails } from './fetchEmails.mjs';
-
+import { fileURLToPath } from 'url';
+import path from 'path';
+import fs from 'fs';
+import { authorizeGmail } from './oauth.mjs'; // Gmail OAuth logic
+import { summarizeEmailsWithTogether } from './summarize.mjs';
 const app = express();
 const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
 
-// 🧠 Emotion-based context prefix generator
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// 🚨 KEYWORDS TO DETECT PRIORITY EMAILS
+const priorityKeywords = [
+  'quiz', 'exam', 'test', 'submission', 'midterm', 'endterm',
+  'deadline', 'interview', 'oa', 'assessment', 'pending',
+  'shortlist', 'shortlisted', 'selected',
+  'recruitment', 'placement', 'hiring','hackathon',
+
+];
+
+const matchesPriority = (text = '') =>
+  priorityKeywords.some(keyword => text.toLowerCase().includes(keyword));
+
+// 📢 Emotional Context (Optional but cool)
 function getEmotionalContext(text) {
   const lowerText = text.toLowerCase();
 
-  if (lowerText.includes('quiz') || lowerText.includes('test') || lowerText.includes('exam')) {
-    return "Hey Heeral, this seems important! 📚 ";
-  } else if (lowerText.includes('deadline') || lowerText.includes('submit') || lowerText.includes('Security alert')) {
-    return "⚠️ Heads up Heeral! You might want to note this. ";
-  } else if (lowerText.includes('meeting') || lowerText.includes('join')) {
-    return "📅 Looks like you have something scheduled. ";
-  } else if (lowerText.includes('congratulations') || lowerText.includes('selected')) {
-    return "🎉 Wow! Great news, Heeral. ";
-  } else if (lowerText.includes('sorry') || lowerText.includes('unfortunately')) {
-    return "Oh no... here's something you may not like. ";
-  } else {
-    return "Here's what your email says: ";
+  if (lowerText.includes('quiz') || lowerText.includes('test') || lowerText.includes('exam') ||lowerText.includes('term') ) {
+    return "📝 Quiz/test vibes detected! Deep breath — you’ve totally got this!";
   }
+
+  if (lowerText.includes('deadline') || lowerText.includes('submit') || lowerText.includes('security alert')) {
+    return "⏳ Something time-sensitive popped up! Let’s peek before it becomes a last-minute panic!";
+  }
+
+  if (lowerText.includes('meeting') || lowerText.includes('zoom') || lowerText.includes('calendar')) {
+    return "📅 A meeting alert, huh? Let’s check if it’s something you need to prep for.";
+  }
+
+  if (lowerText.includes('selected') || lowerText.includes('shortlisted') || lowerText.includes('winner')) {
+    return "🎉 OMG !! This sounds like a win! Let’s open it together 🥳✨";
+  }
+
+  if (lowerText.includes('sorry') || lowerText.includes('unfortunately')) {
+    return "💔 This one might be tough. Want me to sit with you while we go through it?";
+  }
+
+  if (lowerText.includes('newsletter') || lowerText.includes('update') || lowerText.includes('digest')) {
+    return "📰 Just a newsletter. Want the TL;DR or should we skim it?";
+  }
+
+  return "📬 A fresh email is here! Wanna explore it together?";
 }
 
-// 📩 Endpoint to fetch emails
-app.post('/api/emails', async (req, res) => {
-  const { token } = req.body;
+// 🔊 Voice Summary Generator
+const generateVoiceSummary = (emails) => {
+  const unreadEmails = emails.length;
+  const priorityEmails = emails.filter(email =>
+    matchesPriority(email.subject) || matchesPriority(email.snippet)
+  );
 
-  if (!token) {
-    return res.status(400).json({ error: 'Missing access token' });
-  }
+  const highlights = priorityEmails.slice(0, 3).map(mail => mail.subject?.split(':')[0] || 'an important email');
+  return `Hi ! You have ${unreadEmails} new emails, ${priorityEmails.length} of which are urgent — including ${highlights.join(', ')}.`;
+};
+
+// 📩 Gmail Inbox Endpoint
+app.get('/api/emails', async (req, res) => {
+  console.log("📥 /api/emails called");
 
   try {
-    const gmailRes = await axios.get(
-      'https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=10',
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const { token, emailData } = await authorizeGmail();
+
+    const priorityEmails = emailData.filter(email =>
+      matchesPriority(email.subject) || matchesPriority(email.snippet)
     );
 
-    const messages = gmailRes.data.messages || [];
-
-    const emailDetails = await Promise.all(
-      messages.map(async (msg) => {
-        const msgRes = await axios.get(
-          `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const payload = msgRes.data.payload || {};
-        const headers = payload.headers || [];
-        const subjectHeader = headers.find((h) => h.name === 'Subject');
-        const fromHeader = headers.find((h) => h.name === 'From');
-
-        return {
-          subject: subjectHeader?.value || "(No subject)",
-          from: fromHeader?.value || "(Unknown sender)",
-          snippet: msgRes.data.snippet,
-        };
-      })
+    const otherEmails = emailData.filter(email =>
+      !matchesPriority(email.subject) && !matchesPriority(email.snippet)
     );
 
-    res.json(emailDetails);
-  } catch (err) {
-    console.error("❌ Error fetching emails from Gmail:", err.response?.data || err.message);
-    res.status(500).json({ error: 'Failed to fetch Gmail emails' });
+    const summary = generateVoiceSummary(emailData);
+
+    res.json({ token, priorityEmails, otherEmails, summary });
+  } catch (error) {
+    console.error("❌ Failed to fetch emails:", error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
-
-// 🔊 TTS Endpoint with emotional context
+// 🧠 Smart TTS (Emotion + Voice)
 app.post('/api/tts', async (req, res) => {
   const { text } = req.body;
-  console.log("📥 TTS request received:", text);
+  console.log("📥 /api/tts request received:", text);
 
-  if (!text) {
-    return res.status(400).json({ error: 'Text is required for TTS' });
-  }
+  if (!text) return res.status(400).json({ error: 'Text is required for TTS' });
 
   const prefix = getEmotionalContext(text);
-  const finalText = prefix + text;
+  const finalText = `${prefix} ${text}`;
 
   const payload = {
     text: finalText,
-    voiceId: 'bn-IN-arnab',
+    voiceId: 'bn-IN-arnab', // Use your desired Murf voice
     style: 'Conversational',
-    multiNativeLocale: 'en-IN',
+    multiNativeLocale: 'en-IN'
   };
 
   try {
@@ -114,8 +125,8 @@ app.post('/api/tts', async (req, res) => {
 
     const audioUrl = response?.data?.audioFile;
     if (!audioUrl) {
-      console.error("❌ Murf response missing audioFile:", response.data);
-      return res.status(502).json({ error: 'No audio file returned from TTS provider' });
+      console.error("❌ Murf response missing audioFile");
+      return res.status(502).json({ error: 'No audio returned' });
     }
 
     res.json({ audio_url: audioUrl });
@@ -125,35 +136,72 @@ app.post('/api/tts', async (req, res) => {
   }
 });
 
-// 🚀 Server started log
+
+app.post('/summarize', async (req, res) => {
+  const emails = req.body.emails;
+  if (!emails || !emails.length) return res.status(400).json({ error: 'No emails provided' });
+
+  const summary = await summarizeEmailsWithTogether(emails);
+  if (summary) {
+    res.json({ summary });
+  } else {
+    res.status(500).json({ error: 'Failed to summarize emails' });
+  }
+});
+
+
+// 🗣️ Simple /speak endpoint for plain welcome message
+app.post("/speak", async (req, res) => {
+  const { text } = req.body;
+
+  try {
+    const response = await axios.post(
+      "https://api.murf.ai/v1/speech/generate",
+      {
+        text: text,
+        voiceId: 'bn-IN-arnab', // Use your desired Murf voice
+    style: 'Conversational',
+    multiNativeLocale: 'en-IN'
+      },
+      {
+        headers: {
+          "api-key": "ap2_fa7778cf-9bde-4cef-9161-67f10992a345",
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    const audioUrl = response.data?.audioFile;
+    if (!audioUrl) {
+      return res.status(500).json({ error: "No audio returned" });
+    }
+
+    res.json({ audioUrl });
+  } catch (err) {
+    console.error("Murf /speak API error:", err.message);
+    res.status(500).send("Error generating speech");
+  }
+});
+
+// 🌐 Server startup
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
 
-// ⛑️ Catch unhandled promise rejections
+// 🧯 Error & Exit handling
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
+  console.error('💥 Unhandled Rejection:', reason);
 });
-
-// 🔥 Catch uncaught exceptions
 process.on('uncaughtException', (err) => {
-  console.error('💣 Uncaught Exception thrown:', err);
-  process.exit(1); // optional: shut down server on fatal exception
+  console.error('💣 Uncaught Exception:', err);
+  process.exit(1);
 });
-
-// 📤 Listen for process exit events
-process.on('exit', (code) => {
-  console.log(`👋 Process exiting with code: ${code}`);
-});
-
-// 👋 Log when SIGINT/SIGTERM received (like Ctrl+C)
 process.on('SIGINT', () => {
-  console.log('🛑 SIGINT received. Shutting down...');
+  console.log('🛑 SIGINT received. Exiting...');
   process.exit(0);
 });
-
 process.on('SIGTERM', () => {
-  console.log('🛑 SIGTERM received. Shutting down...');
+  console.log('🛑 SIGTERM received. Exiting...');
   process.exit(0);
 });
-setInterval(() => {}, 1 << 30);
+setInterval(() => {}, 1 << 30); // keep server alive

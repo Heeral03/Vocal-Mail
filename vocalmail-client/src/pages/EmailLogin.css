@@ -1,33 +1,50 @@
+/* Full page dark cherry red + blackish gradient background */
+.email-login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #410101, #240202, #0b0000);
+}
+
+/* Container card */
 .email-login-container {
-  max-width: 400px;
-  margin: 100px auto;
-  padding: 2rem;
-  background: #f7f7f7;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-width: 500px;
+  padding: 4rem;
+  background: linear-gradient(145deg, #680b0b, #420303a2);
+  border-radius: 16px;
+  box-shadow: 0 12px 28px rgba(224, 162, 162, 0.493);
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.email-login-form label {
-  display: block;
-  margin-top: 1rem;
-  font-weight: 600;
+/* Heading */
+.email-login-heading {
+  margin-bottom: 1.5rem;
+  color: #f3cdcd;
+  font-size: 2rem;
 }
 
-.email-login-form input {
-  width: 100%;
-  padding: 0.5rem;
-  margin-top: 0.25rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-
-.email-login-form button {
-  margin-top: 1.5rem;
+/* Button */
+.email-login-button {
   width: 100%;
   padding: 0.75rem;
-  background: #333;
-  color: white;
+  background: #c76c6c6e;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: bold;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
+  transition: background 0.3s ease;
+  box-shadow: 0 4px 12px rgba(151, 100, 100, 0.4);
+}
+
+.email-login-button:hover {
+  background: #f5a7a77e;
+}
+
+/* Optional: all buttons inherit font */
+button {
+  font-family: inherit;
 }

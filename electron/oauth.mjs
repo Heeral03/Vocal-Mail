@@ -3,7 +3,13 @@ import path from 'path';
 import { google } from 'googleapis';
 import readline from 'readline';
 
-const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly'];
+const SCOPES = [
+  'https://www.googleapis.com/auth/gmail.readonly',
+  'https://www.googleapis.com/auth/userinfo.email',
+  'https://www.googleapis.com/auth/userinfo.profile', // <-- Add this
+  'openid' // <-- Optional but good
+];
+
 const CREDENTIALS_PATH = path.join(process.cwd(), 'electron/credentials.json');
 const TOKEN_PATH = path.join(process.cwd(), 'electron/token.json');
 
@@ -22,7 +28,8 @@ export async function authorizeGmail() {
   try {
     const token = JSON.parse(fs.readFileSync(TOKEN_PATH));
     oAuth2Client.setCredentials(token);
-    return oAuth2Client;
+    const emailData = await listEmails(oAuth2Client);
+    return { token, emailData };
   } catch (err) {
     return await getNewToken(oAuth2Client);
   }
@@ -42,28 +49,32 @@ function getNewToken(oAuth2Client) {
       output: process.stdout,
     });
 
-    rl.question('\nEnter the code from that page here: ', (code) => {
+    rl.question('\nEnter the code from that page here: ', async (code) => {
       rl.close();
-      oAuth2Client.getToken(code, (err, token) => {
-        if (err) return reject(err);
-        oAuth2Client.setCredentials(token);
-        fs.writeFileSync(TOKEN_PATH, JSON.stringify(token));
+      try {
+        const { tokens } = await oAuth2Client.getToken(code);
+        oAuth2Client.setCredentials(tokens);
+        fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens));
         console.log('Token stored to', TOKEN_PATH);
-        resolve(oAuth2Client);
-      });
+        const emailData = await listEmails(oAuth2Client);
+        resolve({ token: tokens, emailData });
+      } catch (err) {
+        reject(err);
+      }
     });
   });
 }
 
 // ------------------------ FETCH EMAILS ------------------------
 
-export async function listEmails(auth, maxResults = 5) {
+export async function listEmails(auth, maxResults = 10) {
   const gmail = google.gmail({ version: 'v1', auth });
 
   const res = await gmail.users.messages.list({
     userId: 'me',
     maxResults,
-    q: '', // Optional: filter like 'is:unread', 'from:xyz@gmail.com'
+    q: 'is:unread newer_than:7d',
+
   });
 
   const messages = res.data.messages || [];
@@ -85,12 +96,14 @@ export async function listEmails(auth, maxResults = 5) {
     const subject = headers.find((h) => h.name === 'Subject')?.value || '(No Subject)';
     const from = headers.find((h) => h.name === 'From')?.value || '(Unknown Sender)';
     const snippet = msg.data.snippet;
+    const threadId = msg.data.threadId;
 
     emailData.push({
       id: message.id,
       from,
       subject,
       snippet,
+      threadId, // ✅ added
     });
   }
 
