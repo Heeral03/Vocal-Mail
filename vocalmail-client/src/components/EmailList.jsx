@@ -57,14 +57,15 @@ const EmailList = () => {
   const summarizeAndSpeakPriorityEmails = async (emails) => {
     if (!emails.length) return;
 
-    try {
-      const response = await fetch('http://localhost:5000/summarize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emails: emails.slice(0, 3) }) // limit to top 3
-      });
+  try {
+    const response = await fetch('http://localhost:5000/summarize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ emails }) // ✅ Fixed this line
+    });
 
-      const data = await response.json();
+
+         const data = await response.json();
 
       if (data.summary) {
         const summaryIntro = `You have ${emails.length} priority email${emails.length > 1 ? 's' : ''}. Here's a quick summary.`;

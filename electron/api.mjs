@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import axios from 'axios';
 import express from 'express';
 import cors from 'cors';
@@ -5,7 +8,9 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
 import { authorizeGmail } from './oauth.mjs'; // Gmail OAuth logic
-import { summarizeEmailsWithTogether } from './summarize.mjs';
+import { summarizeEmailsWithOpenRouter } from './summarize.mjs';
+
+
 const app = express();
 const PORT = 5000;
 
@@ -21,42 +26,91 @@ const priorityKeywords = [
   'deadline', 'interview', 'oa', 'assessment', 'pending',
   'shortlist', 'shortlisted', 'selected',
   'recruitment', 'placement', 'hiring','hackathon',
-
 ];
 
 const matchesPriority = (text = '') =>
   priorityKeywords.some(keyword => text.toLowerCase().includes(keyword));
 
-// 📢 Emotional Context (Optional but cool)
+// 📢 Emotional Context
 function getEmotionalContext(text) {
   const lowerText = text.toLowerCase();
 
-  if (lowerText.includes('quiz') || lowerText.includes('test') || lowerText.includes('exam') ||lowerText.includes('term') ) {
-    return "📝 Quiz/test vibes detected! Deep breath — you’ve totally got this!";
+  if (
+    lowerText.includes("quiz") || lowerText.includes("exam") || lowerText.includes("test") ||
+    lowerText.includes("assignment") || lowerText.includes("term")
+  ) {
+    return "📝 Exam season alert! Breathe in… you’ve faced tougher. Shall we dive in?";
   }
 
-  if (lowerText.includes('deadline') || lowerText.includes('submit') || lowerText.includes('security alert')) {
-    return "⏳ Something time-sensitive popped up! Let’s peek before it becomes a last-minute panic!";
+  if (
+    lowerText.includes("deadline") || lowerText.includes("submit") ||
+    lowerText.includes("submission") || lowerText.includes("due") ||
+    lowerText.includes("urgent")
+  ) {
+    return "⏳ Deadline chase detected! Let's catch it before it escapes 🏃‍♀️💨";
   }
 
-  if (lowerText.includes('meeting') || lowerText.includes('zoom') || lowerText.includes('calendar')) {
-    return "📅 A meeting alert, huh? Let’s check if it’s something you need to prep for.";
+  if (
+    lowerText.includes("meeting") || lowerText.includes("zoom") || 
+    lowerText.includes("calendar") || lowerText.includes("invite") ||
+    lowerText.includes("reminder")
+  ) {
+    return "📅 Meeting vibes incoming! Should we pretend to care? 😅 Or actually prep?";
   }
 
-  if (lowerText.includes('selected') || lowerText.includes('shortlisted') || lowerText.includes('winner')) {
-    return "🎉 OMG !! This sounds like a win! Let’s open it together 🥳✨";
+  if (
+    lowerText.includes("selected") || lowerText.includes("shortlisted") || 
+    lowerText.includes("winner") || lowerText.includes("congrats") || 
+    lowerText.includes("accepted")
+  ) {
+    return "🎉 WOOHOOO! This might be BIG! Open it before I pop confetti! 🎊";
   }
 
-  if (lowerText.includes('sorry') || lowerText.includes('unfortunately')) {
-    return "💔 This one might be tough. Want me to sit with you while we go through it?";
+  if (
+    lowerText.includes("sorry") || lowerText.includes("unfortunately") || 
+    lowerText.includes("rejected") || lowerText.includes("declined")
+  ) {
+    return "💔 Oof. Might be one of *those* emails. But hey, we face it together 💪";
   }
 
-  if (lowerText.includes('newsletter') || lowerText.includes('update') || lowerText.includes('digest')) {
-    return "📰 Just a newsletter. Want the TL;DR or should we skim it?";
+  if (
+    lowerText.includes("newsletter") || lowerText.includes("update") || 
+    lowerText.includes("digest") || lowerText.includes("recap")
+  ) {
+    return "📰 Just your daily scroll bait. TL;DR it?";
   }
 
-  return "📬 A fresh email is here! Wanna explore it together?";
+  if (
+    lowerText.includes("invoice") || lowerText.includes("payment") ||
+    lowerText.includes("bill") || lowerText.includes("transaction")
+  ) {
+    return "💸 Money stuff! Let’s check if you're broke or balling 😅";
+  }
+
+  if (
+    lowerText.includes("offer") || lowerText.includes("discount") || 
+    lowerText.includes("deal") || lowerText.includes("sale")
+  ) {
+    return "🛍️ It’s raining offers again! Wanna splurge or scroll past?";
+  }
+
+  if (
+    lowerText.includes("birthday") || lowerText.includes("celebration") || 
+    lowerText.includes("party")
+  ) {
+    return "🎂 Looks like party time! Let’s check what’s cooking!";
+  }
+
+  if (
+    lowerText.includes("security alert") || lowerText.includes("unauthorized") || 
+    lowerText.includes("account") || lowerText.includes("reset password")
+  ) {
+    return "🔐 Security alert 🚨 — might be serious. Let's peek quickly!";
+  }
+
+  return "📬 A fresh email just landed! Shall we explore it together?";
 }
+
 
 // 🔊 Voice Summary Generator
 const generateVoiceSummary = (emails) => {
@@ -64,7 +118,6 @@ const generateVoiceSummary = (emails) => {
   const priorityEmails = emails.filter(email =>
     matchesPriority(email.subject) || matchesPriority(email.snippet)
   );
-
   const highlights = priorityEmails.slice(0, 3).map(mail => mail.subject?.split(':')[0] || 'an important email');
   return `Hi ! You have ${unreadEmails} new emails, ${priorityEmails.length} of which are urgent — including ${highlights.join(', ')}.`;
 };
@@ -93,7 +146,26 @@ app.get('/api/emails', async (req, res) => {
   }
 });
 
-// 🧠 Smart TTS (Emotion + Voice)
+// 🔎 Gemini Email Summarization Endpoint
+// 🔎 Email Summarization Endpoint (via OpenRouter)
+app.post('/summarize', async (req, res) => {
+  const { emails } = req.body;
+
+  try {
+    const summary = await summarizeEmailsWithOpenRouter(emails);
+
+    if (!summary) {
+      throw new Error("Summarization failed");
+    }
+
+    res.json({ summary });
+  } catch (error) {
+    console.error("❌ Summarization Error:", error.message);
+    res.status(500).json({ error: "Failed to summarize emails" });
+  }
+});
+
+// 🧠 TTS with emotional prefix
 app.post('/api/tts', async (req, res) => {
   const { text } = req.body;
   console.log("📥 /api/tts request received:", text);
@@ -105,7 +177,7 @@ app.post('/api/tts', async (req, res) => {
 
   const payload = {
     text: finalText,
-    voiceId: 'bn-IN-arnab', // Use your desired Murf voice
+    voiceId: 'bn-IN-arnab',
     style: 'Conversational',
     multiNativeLocale: 'en-IN'
   };
@@ -136,21 +208,7 @@ app.post('/api/tts', async (req, res) => {
   }
 });
 
-
-app.post('/summarize', async (req, res) => {
-  const emails = req.body.emails;
-  if (!emails || !emails.length) return res.status(400).json({ error: 'No emails provided' });
-
-  const summary = await summarizeEmailsWithTogether(emails);
-  if (summary) {
-    res.json({ summary });
-  } else {
-    res.status(500).json({ error: 'Failed to summarize emails' });
-  }
-});
-
-
-// 🗣️ Simple /speak endpoint for plain welcome message
+// 🗣️ Simple /speak endpoint for welcome messages
 app.post("/speak", async (req, res) => {
   const { text } = req.body;
 
@@ -159,9 +217,9 @@ app.post("/speak", async (req, res) => {
       "https://api.murf.ai/v1/speech/generate",
       {
         text: text,
-        voiceId: 'bn-IN-arnab', // Use your desired Murf voice
-    style: 'Conversational',
-    multiNativeLocale: 'en-IN'
+        voiceId: 'bn-IN-arnab',
+        style: 'Conversational',
+        multiNativeLocale: 'en-IN'
       },
       {
         headers: {
@@ -183,12 +241,12 @@ app.post("/speak", async (req, res) => {
   }
 });
 
-// 🌐 Server startup
+// 🌐 Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
 
-// 🧯 Error & Exit handling
+// 🧯 Error handling
 process.on('unhandledRejection', (reason, promise) => {
   console.error('💥 Unhandled Rejection:', reason);
 });
