@@ -1,31 +1,38 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // ✅ import
 import './ContactPage.css';
 import devanshImg from '../assets/Devansh.jpeg';
 import heeralImg from '../assets/Heeral.jpeg';
 
 const ContactPage = () => {
   const [activeCard, setActiveCard] = useState(null);
+  const navigate = useNavigate(); // ✅ get navigate function
 
   const teamMembers = [
     {
       name: 'Heeral Mandolia',
       role: 'Co-Founder · VocalMail',
       img: heeralImg,
-      linkedin: 'https://linkedin.com/in/heeralmandolia',
-      email: 'mailto:heeral@email.com',
+      linkedin: 'linkedin.com/in/heeral-mandolia-1a68b1209/',
+      email: 'mandoliaheeral@gmail.com',
     },
     {
       name: 'Devansh Pareek',
       role: 'Co-Founder · VocalMail',
       img: devanshImg,
-      linkedin: 'https://linkedin.com/in/devanshpareek',
-      email: 'mailto:devansh@email.com',
+      linkedin: 'https://www.linkedin.com/in/devansh-pareek-a78b2a25a/',
+      email: 'devpareek2004@gmail.com',
     },
   ];
 
   return (
     <section id="contact" className="contact-section">
       <div className="floating-bubbles"></div>
+
+      {/* ✅ Back button */}
+      <button className="back-btn" onClick={() => navigate('/')}>
+        ← Back to Home
+      </button>
 
       <h2 className="contact-title">Let’s Connect</h2>
       <p className="contact-subtitle">

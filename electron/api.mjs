@@ -112,6 +112,7 @@ function getEmotionalContext(text) {
 }
 
 
+
 // 🔊 Voice Summary Generator
 const generateVoiceSummary = (emails) => {
   const unreadEmails = emails.length;
@@ -122,6 +123,58 @@ const generateVoiceSummary = (emails) => {
   return `Hi ! You have ${unreadEmails} new emails, ${priorityEmails.length} of which are urgent — including ${highlights.join(', ')}.`;
 };
 
+
+function categorizeEmail(email) {
+  const text = `${email.subject} ${email.snippet}`.toLowerCase();
+
+  const categoryMap = {
+    'Placement & Career': [
+      'placement', 'internship', 'job', 'recruitment', 'interview', 'career', 'shortlist', 'selected'
+    ],
+    'Quizzes & Exams': [
+      'quiz', 'exam', 'test', 'assessment', 'assignment', 'marks', 'grades', 'result', 'syllabus','term','Term','midterm','Midterm','endterm','Endterm'
+    ],
+    'Finance': [
+      'transaction', 'upi', 'payment', 'account', 'invoice', 'salary', 'scholarship', 'bank', 'refund', 'bill'
+    ],
+    'Promotional': [
+      'deal', 'offer', 'discount', 'coupon', 'sale', 'save', 'bargain', 'limited time'
+    ],
+    'E-commerce': [
+      'flipkart', 'amazon', 'myntra', 'order', 'shipped', 'delivered', 'delivery', 'tracking'
+    ],
+    'Social Media': [
+      'facebook', 'instagram', 'twitter', 'linkedin', 'youtube', 'snapchat', 'tiktok','connect'
+    ],
+    'Meetings & Events': [
+      'meeting', 'zoom', 'calendar', 'invite', 'webinar', 'event', 'google meet', 'teams'
+    ],
+    'Academic Updates': [
+      'professor', 'class', 'lecture', 'notes', 'material', 'syllabus', 'timetable', 'course'
+    ],
+    'Security': [
+      'security', 'unauthorized', 'login', 'password', 'suspicious', 'alert', 'account locked'
+    ],
+    'Celebration': [
+      'birthday', 'anniversary', 'party', 'celebration', 'invite'
+    ],
+    'Updates & Newsletters': [
+  'newsletter', 'update', 'digest', 'recap', 'weekly', 'summary',
+  'usage', 'api usage', 'account activity', 'plan', 'upgrade', 'subscription', 'limit', 'quota',
+  
+
+    ]
+  };
+
+  for (const [category, keywords] of Object.entries(categoryMap)) {
+    if (keywords.some(keyword => text.includes(keyword))) {
+      return category;
+    }
+  }
+
+  return 'Other';
+}
+
 // 📩 Gmail Inbox Endpoint
 app.get('/api/emails', async (req, res) => {
   console.log("📥 /api/emails called");
@@ -129,17 +182,41 @@ app.get('/api/emails', async (req, res) => {
   try {
     const { token, emailData } = await authorizeGmail();
 
-    const priorityEmails = emailData.filter(email =>
-      matchesPriority(email.subject) || matchesPriority(email.snippet)
-    );
+    // 1. Add category to each email
+emailData.forEach(email => {
+  email.category = categorizeEmail(email); // 🆕
+});
 
-    const otherEmails = emailData.filter(email =>
-      !matchesPriority(email.subject) && !matchesPriority(email.snippet)
-    );
+// 2. Sort into priority / other
+const priorityEmails = emailData.filter(email =>
+  matchesPriority(email.subject) || matchesPriority(email.snippet)
+);
+
+const otherEmails = emailData.filter(email =>
+  !matchesPriority(email.subject) && !matchesPriority(email.snippet)
+);
+
+// 3. Also categorize into groupings
+const categorizedEmails = {};
+emailData.forEach(email => {
+  const category = email.category || 'Other';
+  if (!categorizedEmails[category]) {
+    categorizedEmails[category] = [];
+  }
+  categorizedEmails[category].push(email);
+});
+
 
     const summary = generateVoiceSummary(emailData);
 
-    res.json({ token, priorityEmails, otherEmails, summary });
+    res.json({
+  token,
+  priorityEmails,
+  otherEmails,
+  categorizedEmails,  // 🆕 for your category UI
+  summary
+});
+
   } catch (error) {
     console.error("❌ Failed to fetch emails:", error.message);
     res.status(500).json({ error: error.message });
@@ -190,7 +267,7 @@ app.post('/api/tts', async (req, res) => {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
-          'api-key': 'ap2_fa7778cf-9bde-4cef-9161-67f10992a345',
+          'api-key': 'ap2_e347a8a8-e3a3-4103-b64e-5446a1e99d94',
         },
       }
     );
@@ -223,7 +300,7 @@ app.post("/speak", async (req, res) => {
       },
       {
         headers: {
-          "api-key": "ap2_fa7778cf-9bde-4cef-9161-67f10992a345",
+          "api-key": "ap2_e347a8a8-e3a3-4103-b64e-5446a1e99d94",
           "Content-Type": "application/json"
         }
       }

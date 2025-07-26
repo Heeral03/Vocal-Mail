@@ -67,26 +67,24 @@ function getNewToken(oAuth2Client) {
 
 // ------------------------ FETCH EMAILS ------------------------
 
-export async function listEmails(auth, maxResults = 10) {
+export async function listEmails(auth, maxResults = 50) {
   const gmail = google.gmail({ version: 'v1', auth });
 
   const res = await gmail.users.messages.list({
     userId: 'me',
     maxResults,
-    q: 'is:unread newer_than:7d',
-
+    q: 'is:unread newer_than:1d',
+    labelIds: ['INBOX'],
   });
 
   const messages = res.data.messages || [];
-
   if (messages.length === 0) {
-    console.log('No messages found.');
+    console.log('No new messages.');
     return [];
   }
 
-  const emailData = [];
-
-  for (const message of messages) {
+  // Parallel fetch
+  const emailPromises = messages.map(async (message) => {
     const msg = await gmail.users.messages.get({
       userId: 'me',
       id: message.id,
@@ -98,14 +96,15 @@ export async function listEmails(auth, maxResults = 10) {
     const snippet = msg.data.snippet;
     const threadId = msg.data.threadId;
 
-    emailData.push({
+    return {
       id: message.id,
       from,
       subject,
       snippet,
-      threadId, // ✅ added
-    });
-  }
+      threadId,
+    };
+  });
 
+  const emailData = await Promise.all(emailPromises);
   return emailData;
 }

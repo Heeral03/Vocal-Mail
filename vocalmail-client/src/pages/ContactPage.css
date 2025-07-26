@@ -92,6 +92,22 @@
   box-shadow: 0 12px 30px rgba(255, 255, 255, 0.2);
   transform: scale(1.05) rotateZ(-0.3deg);
 }
+.back-btn {
+  background: none;
+  border: 1px solid #fff;
+  color: #fff;
+  padding: 8px 16px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
 
 .contact-card.active:hover {
   transform: scale(1.22) rotateZ(0deg);

@@ -13,7 +13,7 @@ async function getUserInfo(accessToken) {
   }
 
   const data = await res.json();
-  return data.name; // or data.given_name if you want only the first name
+  return data.email; // return email instead of name
 }
 
 export async function fetchEmails() {

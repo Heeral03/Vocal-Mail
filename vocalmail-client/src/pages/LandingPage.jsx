@@ -208,146 +208,7 @@ const steps = [
           </div>
         </div>
       </section>
-
-<section id="features" className="features-section-wrapper">
-  <div className="horizontal-feature-scroll" ref={horizontalRef}>
-    {features.map((feature, index) => (
-      <div
-        className="feature-slide"
-        key={index}
-        style={{
-          background: feature.bgGradient,
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Background Image Layer */}
-        {index === 0 && (
-          <img
-            src={img1}
-            alt="Background"
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%) scale(1.1) rotate(-2deg)",
-              width: "120%",
-              height: "120%",
-              objectFit: "cover",
-              zIndex: 0,
-              opacity: 0.06,
-              mixBlendMode: "soft-light",
-              pointerEvents: "none",
-            }}
-          />
-        )}
-
-        {index === 1 && (
-          <img
-            src={img2}
-            alt="Background"
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%) scale(1.1) rotate(-2deg)",
-              width: "120%",
-              height: "120%",
-              objectFit: "cover",
-              zIndex: 0,
-              opacity: 0.06,
-              mixBlendMode: "soft-light",
-              pointerEvents: "none",
-            }}
-          />
-        )}
-
-        <div className="feature-container" style={{ position: "relative", zIndex: 2 }}>
-          <div className="feature-header">
-            <div className="feature-eyebrow">
-              {index === 0 ? "VOICE CONTROL" : "TEXT TO SPEECH"}
-            </div>
-            <h2 className="feature-main-title">{feature.title}</h2>
-            <p className="feature-subtitle">{feature.description}</p>
-          </div>
-
-          <div className="feature-content">
-            <div className="feature-visual">{/* Visual goes here */}</div>
-
-            {/* Feature Text — now applied to both cards */}
-            <div className="feature-text glass-feature-card">
-              <h3 className="feature-title">
-                {index === 0 ? "Effortless Voice Control" : "Human-Like Narration"}
-              </h3>
-              <p className="feature-description">
-                {index === 0 ? (
-                  <>
-                    Maintain focus on important tasks while VocalMail manages your inbox through intuitive voice commands.
-                    <span className="feature-highlight"> Organize your mails</span>,
-                    <span className="feature-highlight"> prioritize urgent emails</span>, and
-                    <span className="feature-highlight"> read your mails in human-like voice </span> using Murf.
-                  </>
-                ) : (
-                  <>
-                    VocalMail uses <span className="feature-highlight">Murf.ai's natural TTS engine</span> to bring your inbox to life.
-                    Let your emails speak to you with clarity, tone, and emotion.
-                  </>
-                )}
-              </p>
-              <p className="feature-description">
-                {index === 0 ? (
-                  "Our advanced voice recognition understands natural speech patterns, making email management feel like a conversation with your personal assistant."
-                ) : (
-                  <>
-                    Experience <span className="feature-highlight">hands-free email access</span>—ideal for multitaskers, people with reading difficulties, or anyone on the move.
-                  </>
-                )}
-              </p>
-              <button className="feature-cta">
-                {index === 0 ? "Discover Features" : "Listen In"}
-                <span className="arrow-icon">→</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Navigation Buttons */}
-          <div className="feature-buttons">
-            {index > 0 && (
-              <button
-                className="prev-button"
-                onClick={() => {
-                  if (horizontalRef.current) {
-                    const scrollAmount = horizontalRef.current.clientWidth;
-                    horizontalRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
-                  }
-                }}
-              >
-                ← Previous
-              </button>
-            )}
-            {index < features.length - 1 && (
-              <button
-                className="next-button"
-                onClick={() => {
-                  if (horizontalRef.current) {
-                    const scrollAmount = horizontalRef.current.clientWidth;
-                    horizontalRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
-                  }
-                }}
-              >
-                Next →
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    ))}
-  </div>
-</section>
-
-
-
- <section id="about" class="about-section">
+      <section id="about" class="about-section">
         <div class="container">
             <div class="about-card">
                 <div class="about-left">
@@ -394,6 +255,142 @@ const steps = [
             </div>
         </div>
     </section>
+
+<section id="features" className="features-section-wrapper">
+  <div className="horizontal-feature-scroll" ref={horizontalRef}>
+    {features.map((feature, index) => (
+      <div
+        className="feature-slide"
+        key={index}
+        style={{
+          background: feature.bgGradient,
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Background Image Layer */}
+        {index === 0 && (
+          <img
+            src={img1}
+            alt="Background"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%) scale(1.1) rotate(-2deg)",
+              width: "120%",
+              height: "120%",
+              objectFit: "cover",
+              zIndex: 0,
+              opacity: 0.09,
+              mixBlendMode: "soft-light",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+
+        {index === 1 && (
+          <img
+            src={img2}
+            alt="Background"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%) scale(1.1) rotate(-2deg)",
+              width: "120%",
+              height: "120%",
+              objectFit: "cover",
+              zIndex: 0,
+              opacity: 0.1,
+              mixBlendMode: "soft-light",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+
+        <div className="feature-container" style={{ position: "relative", zIndex: 2 }}>
+          <div className="feature-header">
+            <div className="feature-eyebrow">
+              {index === 0 ? "VOICE CONTROL" : "TEXT TO SPEECH"}
+            </div>
+            <h2 className="feature-main-title">{feature.title}</h2>
+            <p className="feature-subtitle">{feature.description}</p>
+          </div>
+
+          <div className="feature-content">
+            <div className="feature-visual">{/* Visual goes here */}</div>
+
+            {/* Feature Text — now applied to both cards */}
+            <div className="feature-text glass-feature-card">
+              <h3 className="feature-title">
+                {index === 0 ? "Effortless Voice Control" : "Human-Like Narration"}
+              </h3>
+              <p className="feature-description">
+                {index === 0 ? (
+                  <>
+                    Focus on important tasks while VocalMail manages your inbox through voice commands.
+                    <span className="feature-highlight"> prioritize urgent emails</span>, and
+                    <span className="feature-highlight"> read your mails in human-like voice </span> using Murf.
+                  </>
+                ) : (
+                  <>
+                    VocalMail uses <span className="feature-highlight">Murf.ai's natural TTS engine</span> to bring your inbox to life.
+                    Let your emails speak to you with clarity, tone, and emotion.
+                  </>
+                )}
+              </p>
+              <p className="feature-description">
+                {index === 0 ? (
+                  "Our advanced voice recognition understands natural speech patterns, making email management feel like a conversation with your personal assistant."
+                ) : (
+                  <>
+                    Experience <span className="feature-highlight">hands-free email access</span>—ideal for multitaskers, people with reading difficulties, or anyone on the move.
+                  </>
+                )}
+              </p>
+             
+            </div>
+          </div>
+
+          {/* Navigation Buttons */}
+          <div className="feature-buttons">
+            {index > 0 && (
+              <button
+                className="prev-button"
+                onClick={() => {
+                  if (horizontalRef.current) {
+                    const scrollAmount = horizontalRef.current.clientWidth;
+                    horizontalRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+                  }
+                }}
+              >
+                ← Previous
+              </button>
+            )}
+            {index < features.length - 1 && (
+              <button
+                className="next-button"
+                onClick={() => {
+                  if (horizontalRef.current) {
+                    const scrollAmount = horizontalRef.current.clientWidth;
+                    horizontalRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+                  }
+                }}
+              >
+                Next →
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+
+
+ 
       
 <section id="how-it-works" className="how-it-works enhanced">
   <div className="container">
@@ -472,10 +469,10 @@ const steps = [
               </div>
               
               <div className="link-group">
-                <h4>Contact Us</h4>
+                <h4>Connect</h4>
                 
-                <a href="#">LinkedIn</a>
-                <a href="#">Contact</a>
+               
+               <Link to="/contact">LinkedIn</Link>
               </div>
             </div>
           </div>

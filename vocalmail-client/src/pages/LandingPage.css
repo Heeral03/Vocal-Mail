@@ -164,7 +164,7 @@
 
 .cta-nav-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(141, 31, 64, 0.3);
+  box-shadow: 0 8px 25px rgb(221, 183, 194);
 }
 
 .cta-nav-button::after {
@@ -525,26 +525,30 @@
 }
 /* Enhanced Feature Section with Animations */
 .feature-section {
-  padding: 120px 0;
-  background-color: #cab799ce;
-  color: #350000;
+  padding: 120px 0 160px; /* 👈 More space at bottom */
+  background-color: #4b0505c4;
+  color: #ceb8b8;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden; /* 👈 fix unnecessary clipping */
+  overflow-y: auto;    /* allow scroll if needed */
 }
+
 .glass-feature-card {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(177, 140, 140, 0.774);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 16px;
-  padding: 24px;
-  border: 1px solid rgba(27, 25, 25, 0.719);
-  box-shadow: 0 8px 24px rgba(1, 0, 0, 0.15); /* 👈 subtle greyish shadow */
+  padding: 0.1rem 1.5rem 1rem; /* 👈 generous bottom padding */
+  border: 1px solid rgba(236, 221, 221, 0.719);
+  box-shadow: 0 8px 24px rgba(219, 187, 187, 0.801);
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 
 .glass-feature-card:hover {
-  box-shadow: 0 6px 28px rgba(53, 50, 50, 0.733); /* stronger shadow on hover */
-  border: 1px solid rgba(200, 200, 200, 0.3);
+  box-shadow: 0 6px 28px rgb(252, 246, 246); /* stronger shadow on hover */
+  border: 1px solid rgba(255, 255, 255, 0.425);
 }
 
 .feature-container {
@@ -569,7 +573,7 @@
   font-size: 0.9rem;
   letter-spacing: 6px;
   text-transform: uppercase;
-  color: #350000;
+  color: #ca9a9a;
   margin-bottom: 20px;
   font-weight: 600;
   animation: fadeInDown 1s ease-out;
@@ -590,7 +594,7 @@
   font-size: 5rem;
   font-weight: 800;
   margin-bottom: 20px;
-  color: #350000;
+  color: rgb(197, 163, 163);
   line-height: 1.1;
   animation: fadeInUp 0.8s ease-out;
   position: relative;
@@ -599,7 +603,7 @@
 .feature-main-title span {
   display: block;
   font-size: 3.5rem;
-  color:#350000;
+  color:#bd9898;
   position: relative;
 }
 
@@ -610,7 +614,7 @@
   left: 0;
   width: 150px;
   height: 4px;
-  background: #350000;
+  background: #ddb3b3;
   animation: lineExpand 1.2s ease-out 0.5s;
   animation-fill-mode: both;
 }
@@ -621,10 +625,10 @@
 }
 
 .feature-subtitle {
-  font-size: 1.6rem;
+  font-size: 1rem;
   font-weight: 300;
   line-height: 1.7;
-  color:#350000;
+  color:#cca3a3;
   margin-bottom: 40px;
   animation: fadeInUp 0.8s ease-out 0.3s;
   animation-fill-mode: both;
@@ -1009,6 +1013,13 @@
     opacity: 0.6;
   }
 }
+@media (max-height: 700px) {
+  .glass-feature-card {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
 
 /* HOW IT WORKS */
 .how-it-works {
@@ -1976,6 +1987,7 @@
   height: 100vh;
   overflow: hidden;
   position: relative;
+  margin-bottom: 100px;
 }
 
 /* Only apply scroll-snap to features */
@@ -2022,27 +2034,21 @@
   display: none; /* Chrome, Safari, Opera */
 }
 
-.feature-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 2rem;
-  padding-bottom: 1.5rem;
-}
-
-.prev-button,
-.next-button {
-  background-color: #46050571;
+.feature-buttons button {
+  background: rgba(255, 255, 255, 0.1);
   color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 20px;
+  border-radius: 50px;
+  margin: 10px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
 }
 
-.prev-button:hover,
-.next-button:hover {
-  background-color: #3d0101;
+.feature-buttons button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
 }
+

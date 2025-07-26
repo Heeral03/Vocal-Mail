@@ -30,6 +30,7 @@
     "googleapis": "^153.0.0",
     "node-fetch": "^3.3.2",
     "open": "^10.2.0",
-    "react-router-dom": "^7.7.0"
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^7.7.1"
   }
 }
