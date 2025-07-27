@@ -29,6 +29,7 @@ export async function summarizeEmailsWithOpenRouter(emails) {
  const formattedPrompt = `You are a friendly and emotionally aware assistant who not just reads the emails but understand them on emotional and deeper level.
 
  Summarize the following emails one by one and in not more than 2 sentences. Keep it short, crisp and to the point.
+ Avoid reading out the emails as it is. 
  Show urgency when needed to the words like "Quiz", "Deadline","Submission","Exam" etc. 
  Avoid Repeatition - mention the subject.
 

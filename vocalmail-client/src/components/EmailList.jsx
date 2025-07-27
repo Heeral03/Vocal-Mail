@@ -1,3 +1,4 @@
+// 🧠 SAME IMPORTS
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaPlay, FaEnvelopeOpenText } from 'react-icons/fa';
@@ -10,6 +11,7 @@ const EmailList = () => {
   const [loading, setLoading] = useState(true);
   const [playingIndex, setPlayingIndex] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState({});
+  const [currentAudio, setCurrentAudio] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,60 +36,42 @@ const EmailList = () => {
     fetchEmails();
   }, []);
 
-  // Inject hover and animation styles
   useEffect(() => {
     const style = document.createElement('style');
-style.innerHTML = `
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  @keyframes pulseGlow {
-    0% {
-      box-shadow:
-        0 0 10px rgba(192, 158, 158, 0.6),
-        0 0 20px rgba(92, 67, 67, 0.5),
-        0 0 30px rgba(255, 255, 255, 0.4);
-    }
-    50% {
-      box-shadow:
-        0 0 15px rgba(121, 78, 78, 0.8),
-        0 0 30px rgba(255, 255, 255, 0.7),
-        0 0 45px rgba(255, 255, 255, 0.6);
-    }
-    70% {
-      box-shadow:
-        0 0 10px rgba(255, 255, 255, 0.6),
-        0 0 20px rgba(255, 255, 255, 0.5),
-        0 0 30px rgba(255, 255, 255, 0.4);
-    }
-  }
-
-  .spin {
-    animation: spin 1s linear infinite;
-  }
-
-  .card-hover {
-    transition: transform 0.3s ease-in-out;
-  }
-
-  .card-hover:hover {
-    animation: pulseGlow 1.5s infinite;
-    transform: scale(1.02) translateY(-4px);
-  }
-
-  .btn-hover:hover {
-    filter: brightness(1.2);
-    transition: filter 0.2s ease;
-  }
-`;
-
-
+    style.innerHTML = `
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      @keyframes pulseGlow {
+        0% {
+          box-shadow: 0 0 10px rgba(192, 158, 158, 0.6), 0 0 20px rgba(92, 67, 67, 0.5), 0 0 30px rgba(255, 255, 255, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 15px rgba(121, 78, 78, 0.8), 0 0 30px rgba(255, 255, 255, 0.7), 0 0 45px rgba(255, 255, 255, 0.6);
+        }
+        70% {
+          box-shadow: 0 0 10px rgba(255, 255, 255, 0.6), 0 0 20px rgba(255, 255, 255, 0.5), 0 0 30px rgba(255, 255, 255, 0.4);
+        }
+      }
+      .spin { animation: spin 1s linear infinite; }
+      .card-hover {
+        transition: transform 0.3s ease-in-out;
+      }
+      .card-hover:hover {
+        animation: pulseGlow 1.5s infinite;
+        transform: scale(1.02) translateY(-4px);
+      }
+      .btn-hover:hover {
+        filter: brightness(1.2);
+        transition: filter 0.2s ease;
+      }
+    `;
     document.head.appendChild(style);
   }, []);
 
   const handlePlay = async (text, index) => {
+    handleStop();
     setPlayingIndex(index);
     try {
       const response = await fetch('http://localhost:5000/api/tts', {
@@ -101,12 +85,24 @@ style.innerHTML = `
       if (data.audio_url) {
         const audio = new Audio(data.audio_url);
         audio.play();
+        setCurrentAudio(audio);
+        audio.onended = () => {
+          setPlayingIndex(null);
+          setCurrentAudio(null);
+        };
       }
     } catch (err) {
       console.error("TTS error:", err);
-    } finally {
-      setPlayingIndex(null);
     }
+  };
+
+  const handleStop = () => {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      setCurrentAudio(null);
+    }
+    setPlayingIndex(null);
   };
 
   const summarizeAndSpeakPriorityEmails = async (emails) => {
@@ -133,6 +129,8 @@ style.innerHTML = `
         if (audioData.audioUrl) {
           const audio = new Audio(audioData.audioUrl);
           audio.play();
+          setCurrentAudio(audio);
+          audio.onended = () => setCurrentAudio(null);
         }
       }
     } catch (err) {
@@ -156,23 +154,41 @@ style.innerHTML = `
       </div>
 
       <div style={styles.cardActions}>
-        <button
-          onClick={() => handlePlay(email.subject + '. ' + (email.snippet || ""), index)}
-          style={styles.playBtn}
-          className="btn-hover"
-        >
-          {playingIndex === index ? <ImSpinner8 className="spin" /> : <FaPlay />} Play
-        </button>
-
-        <a
-          href={`https://mail.google.com/mail/u/0/#inbox/${email.threadId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={styles.openBtn}
-          className="btn-hover"
-        >
-          <FaEnvelopeOpenText /> Open
-        </a>
+        {playingIndex === index ? (
+          <>
+            <button onClick={handleStop} style={styles.stopBtn} className="btn-hover">
+               Stop
+            </button>
+            <a
+              href={`https://mail.google.com/mail/u/0/#inbox/${email.threadId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={styles.openBtn}
+              className="btn-hover"
+            >
+              <FaEnvelopeOpenText /> Open
+            </a>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => handlePlay(email.subject + '. ' + (email.snippet || ""), index)}
+              style={styles.playBtn}
+              className="btn-hover"
+            >
+              <FaPlay /> Play
+            </button>
+            <a
+              href={`https://mail.google.com/mail/u/0/#inbox/${email.threadId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={styles.openBtn}
+              className="btn-hover"
+            >
+              <FaEnvelopeOpenText /> Open
+            </a>
+          </>
+        )}
       </div>
     </div>
   );
@@ -221,7 +237,26 @@ style.innerHTML = `
         ← Back to Dashboard
       </button>
 
-      
+      {currentAudio && (
+        <button
+          onClick={handleStop}
+          style={{
+            marginBottom: '1.5rem',
+            padding: '0.6rem 1.2rem',
+            backgroundColor: 'rgb(144, 46, 46)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '1rem',
+            boxShadow: '0 4px 10px rgba(0,0,0,0.25)'
+          }}
+          className="btn-hover"
+        >
+          Stop All Audio
+        </button>
+      )}
 
       {loading ? (
         <p style={{ color: '#fff' }}>Loading emails...</p>
@@ -335,6 +370,16 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     gap: '0.4rem'
+  },
+  stopBtn: {
+    flex: 1,
+    padding: '0.5rem',
+    backgroundColor: 'rgb(110, 32, 32)',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: 'bold'
   },
   openBtn: {
     flex: 1,
