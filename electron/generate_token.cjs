@@ -1,4 +1,5 @@
 // electron/generate_token.js
+require('dotenv').config();
 
 const fs = require("fs");
 const readline = require("readline");
@@ -14,7 +15,10 @@ fs.readFile('credentials.json', (err, content) => {
 });
 
 function authorize(credentials, callback) {
-  const { client_secret, client_id, redirect_uris } = credentials.installed;
+  const client_id = process.env.GOOGLE_CLIENT_ID;
+const client_secret = process.env.GOOGLE_CLIENT_SECRET;
+const redirect_uris = [process.env.GOOGLE_REDIRECT_URI];
+
   const oAuth2Client = new google.auth.OAuth2(
     client_id, client_secret, redirect_uris[0]);
 
