@@ -89,8 +89,8 @@ const steps = [
   },
   {
     
-    title: "Listen & Command",
-    description: "Hear emails aloud and respond with voice commands"
+    title: "Listen ",
+    description: "Hear emails aloud in Human-voice"
   }
 ];
 
@@ -410,42 +410,11 @@ const steps = [
       ))}
     </div>
 
-    <div className="demo-video pulse-wrapper">
-      <div className="video-placeholder">
-        <div className="circular-pulse"></div>
-        <button className="play-button">▶</button>
-        <p>See VocalMail in action </p>
-      </div>
-    </div>
+    
   </div>
 </section>
 
 
-      
-      {/* FAQ Section */}
-      <section className="faq">
-        <div className="container">
-          <h2 className="section-title">Frequently Asked Questions</h2>
-          <div className="faq-grid">
-            <div className="faq-item">
-              <h3>Is VocalMail a voicemail service?</h3>
-              <p>No! VocalMail is an AI voice assistant for your email inbox, not a phone voicemail system.</p>
-            </div>
-            <div className="faq-item">
-              <h3>How secure is my email data?</h3>
-              <p>We use end-to-end encryption and never store your credentials. Your privacy is our top priority.</p>
-            </div>
-            <div className="faq-item">
-              <h3>Which email providers do you support?</h3>
-              <p>Gmail, Outlook, Yahoo, and all IMAP-compatible email services.</p>
-            </div>
-            <div className="faq-item">
-              <h3>Can I try VocalMail for free?</h3>
-              <p>Yes! We offer a 14-day free trial with full functionality.</p>
-            </div>
-          </div>
-        </div>
-      </section>
       {/*Contact*/}
       
     
@@ -456,11 +425,7 @@ const steps = [
             <div className="footer-brand">
               <div className="footer-logo">Vocal Mail</div>
               <p>Your AI-powered email voice assistant</p>
-              <div className="social-links">
-                <a href="#">Twitter</a>
-                <a href="#">LinkedIn</a>
-                <a href="#">Facebook</a>
-              </div>
+            
             </div>
             
             <div className="footer-links">

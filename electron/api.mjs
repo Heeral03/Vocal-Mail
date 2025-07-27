@@ -25,7 +25,8 @@ const priorityKeywords = [
   'quiz', 'exam', 'test', 'submission', 'midterm', 'endterm',
   'deadline', 'interview', 'oa', 'assessment', 'pending',
   'shortlist', 'shortlisted', 'selected',
-  'recruitment', 'placement', 'hiring','hackathon',
+  'recruitment', 'placement', 'hiring','hackathon','Congratulations','congratulations',
+  'selected','Selected'
 ];
 
 const matchesPriority = (text = '') =>
@@ -39,7 +40,7 @@ function getEmotionalContext(text) {
     lowerText.includes("quiz") || lowerText.includes("exam") || lowerText.includes("test") ||
     lowerText.includes("assignment") || lowerText.includes("term")
   ) {
-    return "📝 Exam season alert! Breathe in… you’ve faced tougher. Shall we dive in?";
+    return "📝 Exam season alert! Breathe in... You’ve GOT this! Deep breath. Let’s check what it is.";
   }
 
   if (
@@ -47,7 +48,7 @@ function getEmotionalContext(text) {
     lowerText.includes("submission") || lowerText.includes("due") ||
     lowerText.includes("urgent")
   ) {
-    return "⏳ Deadline chase detected! Let's catch it before it escapes 🏃‍♀️💨";
+    return "⏳ Uh-oh! A deadline is looming! Let's check it before it slips away. 🏃‍♂️💨";
   }
 
   if (
@@ -55,7 +56,7 @@ function getEmotionalContext(text) {
     lowerText.includes("calendar") || lowerText.includes("invite") ||
     lowerText.includes("reminder")
   ) {
-    return "📅 Meeting vibes incoming! Should we pretend to care? 😅 Or actually prep?";
+    return "📅 Incoming meeting alert... Should we act cool or actually prepare? 😅";
   }
 
   if (
@@ -63,64 +64,106 @@ function getEmotionalContext(text) {
     lowerText.includes("winner") || lowerText.includes("congrats") || 
     lowerText.includes("accepted")
   ) {
-    return "🎉 WOOHOOO! This might be BIG! Open it before I pop confetti! 🎊";
+    return "🎉 OOOOH! Big news alert! You might’ve just been selected! Open it... before I explode with excitement! 🎊";
   }
 
   if (
     lowerText.includes("sorry") || lowerText.includes("unfortunately") || 
     lowerText.includes("rejected") || lowerText.includes("declined")
   ) {
-    return "💔 Oof. Might be one of *those* emails. But hey, we face it together 💪";
+    return "💔 Hmm... This might be one of those tough ones. But hey, we got this. Let’s take a look together.";
   }
 
   if (
     lowerText.includes("newsletter") || lowerText.includes("update") || 
     lowerText.includes("digest") || lowerText.includes("recap")
   ) {
-    return "📰 Just your daily scroll bait. TL;DR it?";
+    return "📰 Newsletter or recap time. Should we skim through or snooze it?";
   }
 
   if (
     lowerText.includes("invoice") || lowerText.includes("payment") ||
     lowerText.includes("bill") || lowerText.includes("transaction")
   ) {
-    return "💸 Money stuff! Let’s check if you're broke or balling 😅";
+    return "💸 Money matters! Time to check if you're ballin' or... broke. 😬";
   }
 
   if (
     lowerText.includes("offer") || lowerText.includes("discount") || 
     lowerText.includes("deal") || lowerText.includes("sale")
   ) {
-    return "🛍️ It’s raining offers again! Wanna splurge or scroll past?";
+    return "🛍️ Ooooh, juicy offers spotted! Should we check if it's worth the splurge?";
   }
 
   if (
     lowerText.includes("birthday") || lowerText.includes("celebration") || 
     lowerText.includes("party")
   ) {
-    return "🎂 Looks like party time! Let’s check what’s cooking!";
+    return "🎂 Looks like someone’s throwing a party! Let’s see what’s poppin’! 🎈";
   }
 
   if (
     lowerText.includes("security alert") || lowerText.includes("unauthorized") || 
     lowerText.includes("account") || lowerText.includes("reset password")
   ) {
-    return "🔐 Security alert 🚨 — might be serious. Let's peek quickly!";
+    return "🚨 Security alert. Might be serious. Let’s peek quickly and make sure all is well.";
   }
 
-  return "📬 A fresh email just landed! Shall we explore it together?";
+  return "📬 You've got a new email! Curious to see what it says?";
 }
 
 
 
-// 🔊 Voice Summary Generator
+// 🧠 Emotional + Motivational Voice Summary Generator
 const generateVoiceSummary = (emails) => {
   const unreadEmails = emails.length;
+
   const priorityEmails = emails.filter(email =>
     matchesPriority(email.subject) || matchesPriority(email.snippet)
   );
-  const highlights = priorityEmails.slice(0, 3).map(mail => mail.subject?.split(':')[0] || 'an important email');
-  return `Hi ! You have ${unreadEmails} new emails, ${priorityEmails.length} of which are urgent — including ${highlights.join(', ')}.`;
+
+  const deadlineEmails = priorityEmails.filter(email =>
+    /deadline|submission|due|reminder/i.test(email.subject + email.snippet)
+  );
+
+  const meetingEmails = priorityEmails.filter(email =>
+    /meeting|call|schedule|invite/i.test(email.subject + email.snippet)
+  );
+
+  const invoiceEmails = priorityEmails.filter(email =>
+    /invoice|payment|billing/i.test(email.subject + email.snippet)
+  );
+
+  const highlights = priorityEmails.slice(0, 3).map(mail =>
+    mail.subject?.split(':')[0] || 'an important email'
+  );
+
+  // 🎤 Emotion-based speech logic
+  if (unreadEmails === 0) {
+    return `Hey Heeral, no new emails right now — you're all caught up! Take a breath and enjoy the calm ✨`;
+  }
+
+  if (priorityEmails.length === 0) {
+    return `You’ve got ${unreadEmails} new emails, but none seem urgent. Relax and check them when you can ☕️`;
+  }
+
+  let message = `Hi Heeral! You’ve received ${unreadEmails} new emails — and ${priorityEmails.length} of them seem pretty important.`;
+
+  if (deadlineEmails.length > 0) {
+    message += ` ⚠️ Heads up — ${deadlineEmails.length} email${deadlineEmails.length > 1 ? 's' : ''} mention a *deadline* or *submission*. Stay sharp!`;
+  }
+
+  if (meetingEmails.length > 0) {
+    message += ` 📅 Also, ${meetingEmails.length} email${meetingEmails.length > 1 ? 's' : ''} talk about *meetings* or *calls*. Might wanna review your calendar.`;
+  }
+
+  if (invoiceEmails.length > 0) {
+    message += ` 💰 And there are ${invoiceEmails.length} about *invoices* or *payments*. Just in case there's something financial you need to sort.`;
+  }
+
+  message += ` Here's a quick peek: ${highlights.join(', ')}. You've got this! 💪`;
+
+  return message;
 };
 
 

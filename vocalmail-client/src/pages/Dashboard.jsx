@@ -48,8 +48,8 @@ const Dashboard = () => {
           const fullMessage = `Hey ${nameToUse}, I'm Murf — your AI voice assistant. ${
             emailCount === 0
               ? "You have a clean inbox. High five for staying on top of things! ✨"
-              : `You’ve got ${emailCount} emails waiting. Don't worry, we’ll go through them together.`
-          } To begin, just click the 'Go to Inbox' button below and I’ll guide you through each email. Let’s dive in together, Shall We?`;
+              : `You’ve got ${emailCount} emails waiting.`
+          } To begin, just click the 'Go to Inbox' button below. Let’s dive in together, Shall We?!!`;
 
           const response = await axios.post('http://localhost:5000/speak', {
             text: fullMessage,

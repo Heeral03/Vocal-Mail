@@ -7,10 +7,13 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 function getCleanSenderName(email) {
   if (!email) return 'Unknown Sender';
   const nameMatch = email.match(/^(.*?)\s*</);
-  if (nameMatch) return nameMatch[1].trim();
+  if (nameMatch && nameMatch[1].trim().length > 0) {
+    return nameMatch[1].trim();
+  }
   const domainMatch = email.match(/@([a-zA-Z0-9.-]+)\./);
-  return domainMatch ? domainMatch[1] : email.split('@')[0];
+  return domainMatch ? domainMatch[1] : email.split('@')[0].replace(/[-_].*/, '');
 }
+
 
 export async function summarizeEmailsWithOpenRouter(emails) {
   const priorityEmails = emails.filter(email =>
@@ -23,11 +26,17 @@ export async function summarizeEmailsWithOpenRouter(emails) {
 
   const selectedEmails = priorityEmails.length > 0 ? priorityEmails.slice(0, 5) : emails.slice(0, 5);
 
-  const formattedPrompt = `Summarize the following  emails in **no more than 2 short sentences total**. 
-Focus only on the **most important senders and action items**. Do not repeat full email addresses. Instead, extract the sender's name or domain, summarize the subject and key urgency if any:\n\n` +
-    selectedEmails.map((email, idx) =>
-      `From: ${getCleanSenderName(email.from)}\nSubject: ${email.subject}\nBody: ${email.snippet}\n`
-    ).join('\n\n');
+ const formattedPrompt = `You are a friendly and emotionally aware assistant who not just reads the emails but understand them on emotional and deeper level.
+
+ Summarize the following emails one by one and in not more than 2 sentences. Keep it short, crisp and to the point.
+ Show urgency when needed to the words like "Quiz", "Deadline","Submission","Exam" etc. 
+ Avoid Repeatition - mention the subject.
+
+Emails:\n\n` +
+  selectedEmails.map((email, idx) =>
+    `From: ${getCleanSenderName(email.from)}\nSubject: ${email.subject}\nBody: ${email.snippet}\n`
+  ).join('\n\n');
+
 
   try {
     const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
