@@ -1,6 +1,6 @@
 #  Vocal-Mail
 
-**Vocal-Mail** is a productivity-first desktop application that helps you manage your emails hands-free while you focus on what truly matters.
+**Vocal-Mail** is a productivity-first desktop application that helps you manage your emails while you focus on what truly matters.
 
 It automatically **categorizes and prioritizes** your emails, **summarizes** the important ones using the **OpenRouter API**, and then uses **Murf TTS** to **read them out loud** — making multitasking smoother and smarter.
 
