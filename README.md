@@ -48,6 +48,10 @@ Create a .env file in the root directory and add your keys:
 ```bash
 OPENROUTER_API_KEY=your_openrouter_api_key_here
 MURF_API_KEY=your_murf_api_key_here
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
+GOOGLE_REDIRECT_URI=http://localhost
+PORT=
 ```
 ### 4. Run the app in development mode
 ```bash
