@@ -120,14 +120,17 @@ const steps = [
             </div>
             <span className="logo-name">VocalMail</span>
           </div>
+           {/* Navigation */}
           <nav className="nav" aria-label="Main Navigation">
-  <ul>
-    <li><a href="#features">Features</a></li>
-    <li><a href="#about">About</a></li>
-    <li><a href="#how-it-works">How It Works</a></li>
-    <li><Link to="/contact" className="cta-nav-button">Contact</Link></li>
-  </ul>
-</nav>
+            <ul>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#about">About</a></li>
+              <li><a href="#how-it-works">How It Works</a></li>
+              
+              <li><Link to="/contact" className="cta-nav-button">Contact</Link></li>
+              
+            </ul>
+          </nav>
 
           <button className="mobile-menu-button">☰</button>
         </div>
@@ -164,7 +167,7 @@ const steps = [
               {/* Enhanced Email Animation */}
               <div className="email-reading-animation">
                 <div className="email-item priority-high">
-                  <div className="email-sender">Dr. Mukesh </div>
+                  <div className="email-sender">Dr. Raj </div>
                   <div className="email-subject">You have your lab end-term TOMORROW!!</div>
                 </div>
                 <div className="email-item priority-medium">

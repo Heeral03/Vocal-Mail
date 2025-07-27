@@ -1,19 +1,20 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-
+import FutureAddons from "./pages/FutureAddons";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
   const isLandingPage = location.pathname === "/" || location.pathname === "/landing";
 
-  const navLinks = [
-    { label: "About", path: "/about" },
-    { label: "Dashboard", path: "/dashboard" },
-    { label: "Login", path: "/login" },
-    { label: "Sign Up", path: "/signup" },
-  ];
+const navLinks = [
+  { label: "About", path: "/about" },
+  { label: "Dashboard", path: "/dashboard" },
+  { label: "Future Add-ons", path: "/future-addons" },
+  { label: "Login", path: "/login" },
+  { label: "Sign Up", path: "/signup" },
+];
 
   return (
     <>

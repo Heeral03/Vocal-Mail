@@ -254,9 +254,9 @@ app.post('/api/tts', async (req, res) => {
 
   const payload = {
     text: finalText,
-    voiceId: 'bn-IN-arnab',
-    style: 'Conversational',
-    multiNativeLocale: 'en-IN'
+   voice_id : "bn-IN-abhik",
+  style : "Conversational",
+  multi_native_locale :"en-IN"
   };
 
   try {
@@ -294,9 +294,9 @@ app.post("/speak", async (req, res) => {
       "https://api.murf.ai/v1/speech/generate",
       {
         text: text,
-        voiceId: 'bn-IN-arnab',
-        style: 'Conversational',
-        multiNativeLocale: 'en-IN'
+       voice_id : "bn-IN-abhik",
+  style :"Conversational",
+  multi_native_locale :"en-IN"
       },
       {
         headers: {
