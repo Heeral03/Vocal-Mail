@@ -5,6 +5,8 @@
 It automatically **categorizes and prioritizes** your emails, **summarizes** the important ones using the **OpenRouter API**, and then uses **Murf TTS** to **read them out loud** — making multitasking smoother and smarter.
 
 ---
+### Demo-Video
+https://drive.google.com/file/d/17XF_EKE4hOoKE5iNxAohLSOhVy1-3PGr/view?usp=sharing
 
 ##  Features
 
@@ -77,6 +79,8 @@ node electron/api.mjs
 - Murf for high-quality voice synthesis
 
 - Google Cloud for Gmail API & OAuth
+
+
 
 
 
